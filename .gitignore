@@ -1,0 +1,44 @@
+
+# Game installation
+/Game/
+
+# Build output
+**/bin/
+**/obj/
+**/publish/
+
+# IDE settings
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Temporary files
+*.tmp
+*.log
+*.bak
+*.cache
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Compiled binaries
+*.dll
+*.pdb
+*.exe
+
+# NuGet
+packages/
+
+# Reverse engineering / game analysis
+analysis/
+decompiled/
+inspect_assembly.py
+ILSpy - Shortcut.lnk
