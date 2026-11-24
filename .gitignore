@@ -30,7 +30,6 @@
 Thumbs.db
 
 # Compiled binaries
-*.dll
 *.pdb
 *.exe
 
@@ -42,3 +41,8 @@ analysis/
 decompiled/
 inspect_assembly.py
 ILSpy - Shortcut.lnk
+relevant_code.cs
+notes.txt
+
+#test script
+test.ps1
