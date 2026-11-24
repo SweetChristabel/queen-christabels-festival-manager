@@ -10,10 +10,6 @@ namespace PharaohFestivalManager
     public class FestivalManager
     {
         private readonly ManualLogSource _logger;
-        private const double TreasuryLimit = 0.25;
-        private const double GrandBeerLimit = 0.50;
-
-
         public FestivalManager(ManualLogSource logger)
         {
             _logger = logger;
@@ -38,7 +34,7 @@ namespace PharaohFestivalManager
 
             int cost = ReligionManager.Instance.GetFestivalCostInDeben(size);
 
-            return cost <= treasury * TreasuryLimit;
+            return cost <= treasury * FestivalConfig.TreasuryLimit.Value;
         }
 
         private bool CanAffordGrandFestival(int storedBeer)
@@ -48,7 +44,7 @@ namespace PharaohFestivalManager
 
             int beerCost = ReligionManager.Instance.GetFestivalCostInBeer();
 
-            return beerCost <= storedBeer * GrandBeerLimit;
+            return beerCost <= storedBeer * FestivalConfig.BeerLimit.Value;
         }
 
         private int GetTreasury()

@@ -17,6 +17,7 @@ namespace PharaohFestivalManager
 
             Logger.LogInfo("Pharaoh Festival Manager loaded!");
 
+            FestivalConfig.Initialize(Config);
 
             _mapLifecycleHandler = new MapLifecycleHandler(Logger);
             _mapLifecycleHandler.Subscribe();
