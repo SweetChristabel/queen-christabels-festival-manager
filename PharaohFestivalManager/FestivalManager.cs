@@ -1,5 +1,6 @@
 using BepInEx.Logging;
 using System.Collections.Generic;
+using System.Drawing.Text;
 using System.Linq;
 
 
@@ -16,6 +17,18 @@ namespace PharaohFestivalManager
         public FestivalManager(ManualLogSource logger)
         {
             _logger = logger;
+        }
+
+        private bool HasFestivalSquare()
+        {
+            return GlobalAccessor.Level
+                .GetStoredBuildings<UniqueBuilding>(false)
+                .Any(b => b.Type == BuildingType.FestivalSquare);
+        } 
+
+        private bool HasPendingFestival()
+        {
+            return ReligionManager.Instance.NextFestival != null;
         }
 
         private bool CanAffordFestival(FestivalSize size, int treasury)
@@ -36,6 +49,27 @@ namespace PharaohFestivalManager
             int beerCost = ReligionManager.Instance.GetFestivalCostInBeer();
 
             return beerCost <= storedBeer * GrandBeerLimit;
+        }
+
+        private int GetTreasury()
+        {
+            return GlobalAccessor.Level.Treasury;
+        }
+
+        private int GetStoredBeer()
+        {
+            return LevelManager.Instance.GetGoodTotalStoredQuantity(
+                Good.Beer,
+                ignoreWorkforce:true
+            );
+        }
+
+        private DeityName? GetScheduledDeity()
+        {
+            return FestivalScheduler.GetScheduledDeity(
+                TimeManager.Instance.CurrentMonth,
+                ReligionManager.Instance.ActiveDeities
+            );
         }
 
         private FestivalSize? SelectFestivalSize(
@@ -59,46 +93,57 @@ namespace PharaohFestivalManager
             return null;
         }
 
+        private void PrepareFestival(DeityName deity, FestivalSize size)
+        {
+            bool success = ReligionManager.Instance.PrepareFestival(deity, size);
+            if (success)
+            {
+                _logger.LogInfo($"Prepared {size} festival for {deity}.");
+            }
+            else
+            {
+                _logger.LogWarning($"Failed to prepare {size} festival for {deity}.");
+            }
+        }
+
 
         public void CheckGameState()
         {
-            int currentMonth = TimeManager.Instance.CurrentMonth;
-            _logger.LogInfo($"Current month: {currentMonth}");
-
-            DeityName? scheduledDeity =
-                FestivalScheduler.GetScheduledDeity(
-                    currentMonth,
-                    ReligionManager.Instance.ActiveDeities
-                );
-
-            int treasury = GlobalAccessor.Level.Treasury;
-            _logger.LogInfo($"Treasury: {treasury}");
-
-            int storedBeer = LevelManager.Instance.GetGoodTotalStoredQuantity(
-                Good.Beer,
-                ignoreWorkforce: true
-            );
-            _logger.LogInfo($"Stored Beer: {storedBeer}");
-
-            if (scheduledDeity.HasValue)
+            DeityName? scheduledDeity = GetScheduledDeity();
+            if (!scheduledDeity.HasValue)
             {
-                FestivalSize? selectedSize = SelectFestivalSize(
-                    treasury,
-                    storedBeer,
-                    allowGrandFestival: true
-                );
-
-                if (selectedSize.HasValue)
-                    _logger.LogInfo($"Selected festival size: {selectedSize.Value}");
-                else
-                    _logger.LogInfo("No affordable festival size.");
+                return;
             }
 
+            if (!HasFestivalSquare())
+            {
+                _logger.LogInfo("Festival skipped: No Festival Square.");
+                return;
+            }
 
-            bool festivalSquareExists = 
-                GlobalAccessor.Level
-                .GetStoredBuildings<UniqueBuilding>(false)
-                .Any(b => b.Type == BuildingType.FestivalSquare);
+            if (HasPendingFestival())
+            {
+                _logger.LogInfo("Festival skipped: Festival already scheduled.");
+                return;
+            }
+
+            int treasury = GetTreasury();
+            int storedBeer = GetStoredBeer();
+
+            FestivalSize? selectedSize = SelectFestivalSize(
+                treasury,
+                storedBeer,
+                allowGrandFestival:true
+            );
+
+            if (!selectedSize.HasValue)
+            {
+                _logger.LogInfo("Festival skipped: Insufficient resources.");
+                return;
+            }
+
+            PrepareFestival(scheduledDeity.Value, selectedSize.Value);
+
         }   
 
 
