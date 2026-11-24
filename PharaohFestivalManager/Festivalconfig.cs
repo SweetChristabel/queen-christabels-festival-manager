@@ -5,6 +5,7 @@ namespace PharaohFestivalManager
     public static class FestivalConfig
     {
         public static ConfigEntry<bool> ModEnabled; 
+        public static ConfigEntry<int> MinimumPopulation;
         public static ConfigEntry<bool> GrandFestivalsEnabled;
         public static ConfigEntry<float> TreasuryLimit;
         public static ConfigEntry<float> BeerLimit;
@@ -16,6 +17,17 @@ namespace PharaohFestivalManager
                 "ModEnabled",
                 true,
                 "Enable or disable the Pharaoh Festival Manager mod."
+            );
+
+
+            MinimumPopulation = config.Bind(
+                "Activation",
+                "MinimumPopulation",
+                1000,
+                new ConfigDescription(
+                    "Minimum city population required before automatic festivals begin.",
+                    new AcceptableValueRange<int>(0, 100000)
+                )
             );
 
             GrandFestivalsEnabled = config.Bind(

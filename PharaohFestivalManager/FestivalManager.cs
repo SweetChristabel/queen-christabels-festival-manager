@@ -22,6 +22,11 @@ namespace PharaohFestivalManager
                 .Any(b => b.Type == BuildingType.FestivalSquare);
         } 
 
+        private bool HasMinimumPopulation()
+        {
+            return PopulationManager.Instance.TotalPopulation >=
+            FestivalConfig.MinimumPopulation.Value;
+        }
         private bool HasPendingFestival()
         {
             return ReligionManager.Instance.NextFestival != null;
@@ -105,6 +110,9 @@ namespace PharaohFestivalManager
 
         public void CheckGameState()
         {
+            if (!FestivalConfig.ModEnabled.Value)
+            return;
+
             DeityName? scheduledDeity = GetScheduledDeity();
             if (!scheduledDeity.HasValue)
             {
@@ -114,6 +122,12 @@ namespace PharaohFestivalManager
             if (!HasFestivalSquare())
             {
                 _logger.LogInfo("Festival skipped: No Festival Square.");
+                return;
+            }
+
+            if (!HasMinimumPopulation())
+            {
+                _logger.LogInfo("Festival skipped: Minimum population not met.");
                 return;
             }
 

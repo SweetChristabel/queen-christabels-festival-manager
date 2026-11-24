@@ -6,7 +6,7 @@ namespace PharaohFestivalManager
 {
     [BepInPlugin(
         "com.pharaohfestivalmanager.main",
-        "Pharaoh Festival Manager",
+        "Queen Christabel's Festival Manager",
         "0.1.1"
     )]
     public class Plugin : BaseUnityPlugin
@@ -15,7 +15,7 @@ namespace PharaohFestivalManager
         private void Awake()
         {   
 
-            Logger.LogInfo("Pharaoh Festival Manager loaded!");
+            Logger.LogInfo("Queen Christabel's Festival Manager loaded!");
 
             FestivalConfig.Initialize(Config);
 
